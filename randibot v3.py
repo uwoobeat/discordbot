@@ -19,19 +19,8 @@ async def on_ready():
     print(f"성공적으로 연결되었음")
     print("="* 30)
 
-#read username.json
 
-# username.json
-
-#write username.json
-"""
-with open('C://discordbot/username.json', 'w') as w:
-    entryJson = json.dumps(w, entryDict)
-"""
-    
-
-#참가자 DB 관리
-
+#solvedac 관련 함수
 def save_info_from_solvedac(handle): #솔브닥으로부터 참가자 정보 받아서 json으로 저장
     url = "https://solved.ac/api/v3/user/show"
     querystring = {"handle":f"{handle}"}
@@ -55,11 +44,15 @@ def get_userdata(handle):
         headers = {"Content-Type": "application/json"}
         return requests.request("GET", url, headers=headers, params=querystring).json() #return dict
 
-""""
-def convert_tier_num_to_str(tier_num): #숫자로 입력된 티어를 영/한 문자열로 변환
-    with open(f"tierdata")
-"""
 
+def convert_tier_num_to_str(tier_num):
+    f = open("C://discordbot/tierdata.txt")
+    tierList = [f.readline().rstrip().split('\t') for _ in range(31)]
+    tier_str = tierList[tier_num-1][1]
+    return tier_str
+
+
+#참가자 CRUD 기능
 @bot.command() #참가자를 입력받는 명령어
 async def 참가(ctx, handle):
     try:
@@ -82,7 +75,7 @@ async def 참가(ctx, handle):
             with open(f'C://discordbot/entrydata.json', 'w', encoding='utf-8') as entry:
                 json.dump(entryDict, entry, indent=4)
             
-            await ctx.send(f"{handle}님의 정보가 성공적으로 참가자 DB에 등록되었습니다.")
+            await ctx.send(f"{handle}님의 정보가 성공적으로 신청목록에 등록되었습니다.")
             entry.close()
         
         except:
@@ -95,6 +88,7 @@ async def 참가(ctx, handle):
 
 
 @bot.command() #참가자를 수정하는 명령어
+#다시 짜야함. 굳이 수정할 필요가 없음... 없어도 되는 기능임.
 async def 수정(ctx, handle_before, handle_after):
     with open(f'C://discordbot/entrydata.json', 'r', encoding='utf-8') as entry:
         entryDict = json.load(entry) #load method를 통해 entryDict로 열기
@@ -122,7 +116,7 @@ async def 수정(ctx, handle_before, handle_after):
     
 
 
-@bot.command() #참가자 목록을 보여주는 명령어
+@bot.command() #참가자 목록을 보여주는 명령어. 티어 순 정렬 기능도 필요할듯?
 async def 신청목록(ctx):
     embed = discord.Embed(
         title = "신청자 현황",
@@ -135,7 +129,10 @@ async def 신청목록(ctx):
             entryDict = json.load(entry) #load method를 통해 entryDict로 열기
         
         for handle in entryDict:
-            embed.add_field(name = f"{handle}", value = f"tier: {entryDict[handle]['tier']}",inline = False)
+            embed.add_field(name = f"{handle}", 
+            value = f"{convert_tier_num_to_str(entryDict[handle]['tier'])}",
+            inline = False
+            )
 
         embed.set_footer(text = "Bot Made by uwoobeat & swoon")
 
@@ -144,10 +141,32 @@ async def 신청목록(ctx):
     except:
         await ctx.send("멤버 목록 로딩 중 오류가 발생했습니다.")
 
-"""
+
 @bot.command() #참가자를 삭제하는 명령어
 async def 삭제(ctx, handle):
-"""
+    try:
+        with open(f'C://discordbot/entrydata.json', 'r', encoding='utf-8') as entry:
+            entryDict = json.load(entry) #load method를 통해 entryDict로 열기
+        nameList = entryDict.keys()
+    except:
+        await ctx.send("멤버 목록 로딩 중 오류가 발생했습니다.")
+    
+    try:
+        if handle in nameList:
+            del entryDict[handle]
+            
+            #dump method를 통해 수정된 entryDict를 저장
+            with open(f'C://discordbot/entrydata.json', 'w', encoding='utf-8') as entry:
+                json.dump(entryDict, entry, indent=4)
+            
+            await ctx.send(f"{handle}님이 신청목록에서 성공적으로 제거하였습니다.")
+            entry.close()
+        else:
+            await ctx.send("등록되지 않은 멤버입니다.")
+    except:
+        await ctx.send("정보 수정 중 오류가 발생했습니다.")
+
+
 
 f = open("C://discordbot/token.txt", 'r')
 token = f.readline().rstrip()
