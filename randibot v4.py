@@ -67,7 +67,7 @@ async def 참가(ctx, *handleList): #가변 매개변수로 한번에 여러 핸
                 entry_collection.insert_one({"handle": f"{handle}", "tier": f"{tier}"}) #없으면 db에 핸들, 티어 저장
                 success_handle_list.append(handle)
             except:
-                failed_invalid_handle_list.append(handle) #get_user_info에서 오류 발생 시 솔브닥에 정보 존재하지 않는 것
+                failed_invalid_handle_list.append(handle) #solvedac api에서 오류 발생
         else:
             failed_dup_handle_list.append(handle)
     

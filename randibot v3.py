@@ -5,6 +5,8 @@ import os
 from discord import Intents
 from discord.ext import commands
 from discord_slash import SlashCommand
+import pymongo
+from pymongo import MongoClient
 
 bot = commands.Bot(command_prefix = '!', intents = Intents.default())
 #slash = SlashCommand(bot, sync_commands = True)
@@ -37,7 +39,7 @@ def save_info_from_solvedac(handle): #솔브닥으로부터 참가자 정보 받
         return True 
     except:
         return False #성공하면 True, 실패하면 False 반환
-
+        
 def get_userdata(handle):
         url = "https://solved.ac/api/v3/user/show"
         querystring = {"handle":f"{handle}"}
@@ -48,46 +50,24 @@ def get_userdata(handle):
 def convert_tier_num_to_str(tier_num):
     f = open("C://discordbot/tierdata.txt")
     tierList = [f.readline().rstrip().split('\t') for _ in range(31)]
-    tier_str = tierList[tier_num-1][1]
-    return tier_str
+    return tierList[tier_num-1][1]
 
+#mongoDB 관련 코드
+with open('connect_url.txt', 'r') as f:
+    connect_url = f.readline().rstrip() #txt 파일에서 연결 위한 URL 불러오기
+cluster = MongoClient(connect_url) #클러스터 할당
+db = cluster["userdata"] #userdata 데이터베이스 할당
+entry_collection = db["entrydata"] #entrydata 컬렉션 할당
 
 #참가자 CRUD 기능
-@bot.command() #참가자를 입력받는 명령어
-async def 참가(ctx, handle):
+@bot.command(aliases = ["신청"]) #참가자를 입력받는 명령어
+async def 참가(ctx, *handleList): #가변 
     try:
-        if not os.path.isfile("C://discordbot/entrydata.json"):
-            entryDict = dict() #존재하지 않는 파일이면 불러오지 않기
-        else:
-            with open(f'C://discordbot/entrydata.json', 'r', encoding='utf-8') as entry:
-                entryDict = json.load(entry) #load method를 통해 entryDict로 열기
-    except:
-        await ctx.send("참가자 목록을 불러오는 중 오류가 발생했습니다..")
-
-    if handle not in entryDict.keys(): #핸들명이 참가자 목록에 존재하는지 확인
-        response_json = get_userdata(handle) #요청받은 json(dict) 파일 할당
-        userTier = response_json["tier"]
-        entryDict[handle] = dict()
-        entryDict[handle]["tier"] = userTier
-
-        try:
-            #dump method를 통해 수정된 entryDict를 저장
-            with open(f'C://discordbot/entrydata.json', 'w', encoding='utf-8') as entry:
-                json.dump(entryDict, entry, indent=4)
-            
-            await ctx.send(f"{handle}님의 정보가 성공적으로 신청목록에 등록되었습니다.")
-            entry.close()
-        
-        except:
-            #예외 발생 시 파일 close 후 메세지 출력
-            await ctx.send("정보 등록 중 오류가 발생했습니다.")
-    
-    else:
-        await ctx.send("이미 등록된 유저입니다.")
+        collection.
     #완료 후 파일 close
 
 
-@bot.command() #참가자를 수정하는 명령어
+@bot.command(aliases = [""]) #참가자를 수정하는 명령어
 #다시 짜야함. 굳이 수정할 필요가 없음... 없어도 되는 기능임.
 async def 수정(ctx, handle_before, handle_after):
     with open(f'C://discordbot/entrydata.json', 'r', encoding='utf-8') as entry:
@@ -142,11 +122,15 @@ async def 신청목록(ctx):
         await ctx.send("멤버 목록 로딩 중 오류가 발생했습니다.")
 
 
-@bot.command() #참가자를 삭제하는 명령어
-async def 삭제(ctx, handle):
+@bot.command(aliases =["삭제"]) #참가자를 삭제하는 명령어
+async def 제거(ctx, handle):
+    if handle.isalnum() and len(handle) <= 20:
+        await ctx.send("올바른 형태의 핸들명이 아닙니다.","알파벳과 숫자로 구성된 20자 이하의 핸들명을 입력해주세요.")
+
     try:
+        #entrydata.json을 entry 파일 객체로 열고, entryDict에 파싱하여 저장하기
         with open(f'C://discordbot/entrydata.json', 'r', encoding='utf-8') as entry:
-            entryDict = json.load(entry) #load method를 통해 entryDict로 열기
+            entryDict = json.load(entry) 
         nameList = entryDict.keys()
     except:
         await ctx.send("멤버 목록 로딩 중 오류가 발생했습니다.")
@@ -155,7 +139,7 @@ async def 삭제(ctx, handle):
         if handle in nameList:
             del entryDict[handle]
             
-            #dump method를 통해 수정된 entryDict를 저장
+            #dump method를 통해 수정된 entryDict를 entry 파일 객체로 열린 entrydata.json에 저장
             with open(f'C://discordbot/entrydata.json', 'w', encoding='utf-8') as entry:
                 json.dump(entryDict, entry, indent=4)
             
@@ -165,6 +149,20 @@ async def 삭제(ctx, handle):
             await ctx.send("등록되지 않은 멤버입니다.")
     except:
         await ctx.send("정보 수정 중 오류가 발생했습니다.")
+
+@bot.command() #사용자의 응답이 네/아니오인지 확인하고 그에 따라 참/거짓을 반환하는 명령어
+async def is_reply_yes_or_no(message):
+    if 
+    if message.content.startswith("!네"):
+        return True
+    elif message.content.startswith("!아니오"):
+        return False
+
+@bot.command(aliases =["전체삭제"]) #신청된 참가자를 전부 삭제하는 명령어
+async def 전체제거(ctx):
+    
+    if is_reply_yes_or_not(message)
+    
 
 
 
