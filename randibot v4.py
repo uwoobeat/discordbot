@@ -35,14 +35,14 @@ def get_user_info(handle):
 
 #사용자 티어를 숫자에서 문자열로 변환하는 함수 
 def convert_tier_num_to_str(tier_num): #tierdata는 깃허브에 저장해놓고 써도 될듯?
-    f = open("C://discordbot/tierdata.txt")
+    f = open("tierdata.txt")
     tierList = [f.readline().rstrip().split('\t') for _ in range(31)]
     return tierList[int(tier_num)-1][1]
 
 
 
 #mongoDB 연결
-with open('C://discordbot/connect_url.txt', 'r') as f:
+with open('connect_url.txt', 'r') as f:
     connect_url = f.readline().rstrip() #txt 파일에서 연결 위한 URL 불러오기
 client_mongo = MongoClient(connect_url, tlsCAFile=certifi.where()) #클러스터 할당
 #MongoDB는 보안 통신을 위해 TLS 인증서가 필요한데, python은 TLS 통해 요청 불가능하므로 대신 certifi 패키지를 통해 요청
@@ -135,7 +135,7 @@ async def 전체제거(ctx):
 
 
 #토큰 불러오기
-f = open("C://discordbot/token.txt", 'r')
+f = open("token.txt", 'r')
 token = f.readline().rstrip()
 f.close()
 

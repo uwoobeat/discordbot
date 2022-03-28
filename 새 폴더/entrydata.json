@@ -1,0 +1,37 @@
+[{
+  "_id": {
+    "$oid": "623617c41db3dcbe6080e279"
+  },
+  "handle": "name1",
+  "tier": "11"
+},{
+  "_id": {
+    "$oid": "623617c41db3dcbe6080e27a"
+  },
+  "handle": "name2",
+  "tier": "22"
+},{
+  "_id": {
+    "$oid": "6236dc4f697575dea7b1e890"
+  },
+  "handle": "name3",
+  "tier": "14"
+},{
+  "_id": {
+    "$oid": "6236dc4f697575dea7b1e891"
+  },
+  "handle": "name4",
+  "tier": "7"
+},{
+  "_id": {
+    "$oid": "6236dc4f697575dea7b1e892"
+  },
+  "handle": "name5",
+  "tier": "12"
+},{
+  "_id": {
+    "$oid": "6236dc4f697575dea7b1e893"
+  },
+  "handle": "name6",
+  "tier": "13"
+}]
