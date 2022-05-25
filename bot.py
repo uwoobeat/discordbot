@@ -203,4 +203,4 @@ async def command_solvedac(ctx, solvedac_category = "문제"):
         await ctx.send(embed = solvedac_embed)
 
 
-bot.run('OTI0MDAwNjEyMTQyNjk0NDQx.YcYMoQ.4AbEzV9jeztNFkKnZo2zdfCW9co')
+bot.run(token)
